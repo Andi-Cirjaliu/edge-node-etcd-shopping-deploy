@@ -29,4 +29,5 @@ spec:
         - name: PORT
           value: "3000"
         - name: DB_HOST
-          value: "example-client.my-etcd.svc.cluster.local"
+          value: "http://169.62.52.66:32379"
+          # value: "example-client.my-etcd.svc.cluster.local"
