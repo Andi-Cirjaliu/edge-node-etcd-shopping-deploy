@@ -27,9 +27,21 @@ app.use( ( req, res, next ) => {
 });
 
 //Generic error handler
-app.use(function (err, req, res, next) {
-    console.error('An unhandled error occured: ', err, ', stack', err.stack);
-    res.status(500).json({"msg": "An internal error occured"});
+app.use(function (error, req, res, next) {
+    console.error('An unhandled error occured: ', error);
+    
+    console.log('get error info');
+    const status = error.statusCode || 500;
+    const message = error.message;
+    const data = error.data;
+    console.log('status: ', status, ', message: ', message, ', data: ', data);
+
+    return res.status(status).json( { 
+        message: message,
+        data: data
+    });
+
+    // res.status(500).json({"msg": "An internal error occured"});
 });
   
 const PORT = process.env.PORT || 3000;

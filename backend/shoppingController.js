@@ -2,12 +2,20 @@ const db = require('./dbController');
 
 const getShopppingList = async (req, res, next) => {
     console.log('Get shopping list...');
-    const result = await db.getAllValues();
-    // return res.json(result);
-    return res.render('shopping/main', {
+
+    try {
+      const result = await db.getAllValues();
+      // return res.json(result);
+      return res.render("shopping/main", {
         items: result,
-        pageTitle: 'Shopping list' 
+        pageTitle: "Shopping list",
+        errorMsg: null 
       });
+    } catch (err) {
+        const error = new Error("Could not retrieve the shopping list");
+        error.statusCode = 400;
+        return next(error);
+    }
 }
 
 const addShopppingItem = async (req, res, next) => { 
@@ -15,18 +23,25 @@ const addShopppingItem = async (req, res, next) => {
     const qty = req.body.qty;
     console.log('Add item ', item, ' quantity ', qty);
 
-    //check if item already exists
-    const val = await db.getKey(item);
-    if ( val ) {
-        //TODO handle this case
-        console.log('Item ', item, ' already is in list.');
-        return res.redirect('/');
-    }
+    try {
+      //check if item already exists
+      const val = await db.getKey(item);
+      if (val) {
+        console.log("Item ", item, " is already in list.");
+        const error = new Error("Item " + item + " is already in list.");
+        error.statusCode = 400;
+        return next(error);
+        // return res.redirect("/");
+      }
 
-    await db.setKey(item, qty);  
-    
-    res.redirect('/');
-    // await getShopppingList(req, res, next);
+      await db.setKey(item, qty);
+
+      res.redirect("/");
+    } catch (err) {
+      const error = new Error("Could not add the item");
+      error.statusCode = 500;
+      return next(error);
+    } 
 }
 
 const decQtyShopppingItem = async (req, res, next) => {
@@ -34,22 +49,31 @@ const decQtyShopppingItem = async (req, res, next) => {
     const item = req.body.item;  //req.params.item;
     console.log('Decrement quantity item ', item);
 
-    if ( ! item ) {
-        return next(new Error('Invalid item'), req, res);
+    if (!item) {
+      const error = new Error("Invalid item");
+      error.statusCode = 400;
+      return next(error);
     }
 
-    const val = await db.getKey(item);
-    const qty = Number.parseInt(val); 
+    try {
+      const val = await db.getKey(item);
+      const qty = Number.parseInt(val);
 
-    if ( qty >= 2 ) {
-        await db.setKey(item, qty-1);
-    } else {
-        //Qty is 1 so the item can be removed 
+      if (qty >= 2) {
+        await db.setKey(item, qty - 1);
+      } else {
+        //Qty is 1 so the item can be removed
         await db.deleteKey(item);
+      }
+
+      res.redirect('/');
+      // await getShopppingList(req, res, next);
+    } catch (err) {
+      const error = new Error("Could not chnage the quantity");
+      error.statusCode = 400;
+      return next(error);
     }
     
-    res.redirect('/');
-    // await getShopppingList(req, res, next);
 }
 
 const incQtyShopppingItem = async (req, res, next) => {
@@ -57,22 +81,34 @@ const incQtyShopppingItem = async (req, res, next) => {
     const item = req.body.item;   //req.params.item;
     console.log('Increment quantity item ', item);
 
-    if ( ! item ) {
-        return next(new Error('Invalid item'), req, res);
+    if (!item) {
+      const error = new Error("Invalid item");
+      error.statusCode = 400;
+      return next(error);
     }
 
-    const val = await db.getKey(item);
-    const qty = Number.parseInt(val);
+    try {
+      const val = await db.getKey(item);
+      const qty = Number.parseInt(val);
 
-    if ( qty < 100 ) {
-        await db.setKey(item, qty+1);
-    } else {
+      if (qty < 100) {
+        await db.setKey(item, qty + 1);
+
+        res.redirect('/');
+        // await getShopppingList(req, res, next);
+      } else {
         //Qty is 100. throw an error
-        throw new Error('Quantity cannot be bigger than 100');
+        const error = new Error("Quantity cannot be bigger than 100");
+        error.statusCode = 400;
+        return next(error);
+        // throw new Error('Quantity cannot be bigger than 100');
+      }
+    } catch (err) {
+      const error = new Error("Could not chnage the quantity");
+      error.statusCode = 400;
+      return next(error);
     }
     
-    res.redirect('/');
-    // await getShopppingList(req, res, next);
 }
 
 const deleteShopppingItem = async (req, res, next) => {
@@ -80,14 +116,21 @@ const deleteShopppingItem = async (req, res, next) => {
     const item = req.body.item;       //req.params.item;
     console.log('Delete item ', item);
 
-    if ( ! item ) {
-        return next(new Error('Invalid item'), req, res);
+    if (!item) {
+      const error = new Error("Invalid item");
+      error.statusCode = 400;
+      return next(error);
     }
 
-    await db.deleteKey(item);
+    try {
+      await db.deleteKey(item);
 
-    res.redirect('/');
-    // await getShopppingList(req, res, next);
+      res.redirect("/");
+    } catch (err) {
+      const error = new Error("Could not chnage the quantity");
+      error.statusCode = 400;
+      return next(error);
+    }
 }
 
 module.exports = {
