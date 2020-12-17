@@ -28,9 +28,9 @@ app.use( ( req, res, next ) => {
 
 //Generic error handler
 app.use(function (error, req, res, next) {
-    console.error('An unhandled error occured: ', error);
+    console.error('An error occured: ', error);
     
-    console.log('get error info');
+    // console.log('get error info');
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
