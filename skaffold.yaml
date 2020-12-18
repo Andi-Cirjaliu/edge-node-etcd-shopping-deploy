@@ -7,8 +7,9 @@ build:
   - image: backend
     context: backend
     sync:
-      infer:
-      - '**/*'
+      manual:
+      - src: 'backend/*'
+        dest: /app/*
 deploy:
   kubectl:
     manifests:
