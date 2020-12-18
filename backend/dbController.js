@@ -1,6 +1,8 @@
 const { Etcd3 } = require('etcd3');
 const defaultItems = require('./default_shopping_items');
 
+const io = require('./socket');
+
 const host = process.env.DB_HOST;
 console.log('db host: ', host);
 
@@ -60,13 +62,52 @@ const initDB = async () => {
         if (!val) {
           await setKey(item.itemName, item.itemQty);
         }
+        watchKeyChanges(item.itemName);
       }
-    } catch (err) {
+    } catch (err) { 
       console.error("An error occured while initialize etcd db: ", err);
     }
 
 }
- 
+
+
+const watchKeyChanges = (key) => {
+    console.log('Watch changes for ', key);
+    client
+      .watch()
+      .key(key)
+      .create()
+      .then((watcher) => {
+        watcher
+          .on("disconnected", () => 
+            console.log("watcher disconnected...")
+            )
+          .on("connected", () =>
+            console.log("successfully reconnected watcher!")
+          )
+          .on("put", (res) => {
+            let value = res.value.toString();
+            console.log('PUT EVENT - ', key, " got set to:", value);
+            //emit event
+            io.getIO().emit("change", { action: "update", key, value });
+          })
+          .on("delete", (res) => { 
+              console.log('DELETE EVENT - ', key, " was deleted");
+              //emit event
+            io.getIO().emit("change", { action: "delete", key, value: null });
+        });
+      });
+}
+
+module.exports = {
+    initDB,
+    getAllKeys,
+    getAllValues,
+    getKey,
+    setKey,
+    deleteKey
+}
+
 // (async () => {
 //   await client.put('foo').value('bar');
 
@@ -91,13 +132,4 @@ const initDB = async () => {
 // })();
 
 // getKey('aaaa');
-// initDB(); 
-
-module.exports = {
-    initDB,
-    getAllKeys,
-    getAllValues,
-    getKey,
-    setKey,
-    deleteKey
-}
+// initDB();

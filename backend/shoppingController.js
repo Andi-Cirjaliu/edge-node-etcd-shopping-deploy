@@ -13,7 +13,7 @@ const getShopppingList = async (req, res, next) => {
       });
     } catch (err) {
         const error = new Error("Could not retrieve the shopping list");
-        error.statusCode = 400;
+        error.statusCode = 500;
         return next(error);
     }
 }

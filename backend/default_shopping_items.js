@@ -1,18 +1,18 @@
 module.exports = [
   {
-    itemName: "apple",
+    itemName: "apples",
     itemQty: 5,
   },
   {
-    itemName: "banana",
-    itemQty: 4,
+    itemName: "bananas",
+    itemQty: 3,
   },
   {
-    itemName: "kiwi",
+    itemName: "kiwis",
     itemQty: 2,
   },
   {
-    itemName: "apricot",
+    itemName: "apricots",
     itemQty: 4,
   },
 ];

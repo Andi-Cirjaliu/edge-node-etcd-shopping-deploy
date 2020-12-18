@@ -46,6 +46,11 @@ app.use(function (error, req, res, next) {
   
 const PORT = process.env.PORT || 3000;
 
-app.listen( PORT, () => {
+const server = app.listen( PORT, () => {
     console.log('App listens on port ', PORT);
-} )
+} );
+
+const io = require('./socket').init(server);
+io.on('connection', socket => {
+  console.log('----- Socket client connected! socket id ', socket.id);
+});
