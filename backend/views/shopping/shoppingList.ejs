@@ -1,10 +1,11 @@
 <% if ( Object.keys(items).length > 0) { %>
-    <table class="table">
+    <table class="table table-shopping">
         <thead>
         <tr>
             <th scope="col">#</th>
             <th scope="col">Item name</th>
             <th scope="col">Quantity</th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -14,7 +15,7 @@
                 <th scope="row"><%= ++index %></th>
                 <td><%= itemName %></td>
                 <td><%= items[itemName] %></td>
-                <td>
+                <td align="right">
                     <form id="decForm" action="/shopping/dec" method="POST">
                         <input type="hidden" name="item" value="<%= itemName %>" />
                         <button type="submit"><i class="fas fa-minus-square"></i>Decrement</button>
