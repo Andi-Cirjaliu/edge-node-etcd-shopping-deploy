@@ -4,7 +4,7 @@ const getShopppingList = async (req, res, next) => {
     console.log('Get shopping list...');
 
     try {
-      const result = await db.getAllValues();
+      const result = await db.getAllItems();
       // return res.json(result);
       return res.render("shopping/main", {
         items: result,
@@ -25,7 +25,7 @@ const addShopppingItem = async (req, res, next) => {
 
     try {
       //check if item already exists
-      const val = await db.getKey(item);
+      const val = await db.getItem(item);
       if (val) {
         console.log("Item ", item, " is already in list.");
         const error = new Error("Item " + item + " is already in list.");
@@ -34,7 +34,7 @@ const addShopppingItem = async (req, res, next) => {
         // return res.redirect("/");
       }
 
-      await db.setKey(item, qty);
+      await db.addItem(item, qty);
 
       res.redirect("/");
     } catch (err) {
@@ -56,14 +56,14 @@ const decQtyShopppingItem = async (req, res, next) => {
     }
 
     try {
-      const val = await db.getKey(item);
+      const val = await db.getItem(item);
       const qty = Number.parseInt(val);
 
       if (qty >= 2) {
-        await db.setKey(item, qty - 1);
+        await db.updateItem(item, qty - 1);
       } else {
         //Qty is 1 so the item can be removed
-        await db.deleteKey(item);
+        await db.deleteItem(item);
       }
 
       res.redirect('/');
@@ -88,11 +88,11 @@ const incQtyShopppingItem = async (req, res, next) => {
     }
 
     try {
-      const val = await db.getKey(item);
+      const val = await db.getItem(item);
       const qty = Number.parseInt(val);
 
       if (qty < 100) {
-        await db.setKey(item, qty + 1);
+        await db.updateItem(item, qty + 1);
 
         res.redirect('/');
         // await getShopppingList(req, res, next);
@@ -123,7 +123,7 @@ const deleteShopppingItem = async (req, res, next) => {
     }
 
     try {
-      await db.deleteKey(item);
+      await db.deleteItem(item);
 
       res.redirect("/");
     } catch (err) {

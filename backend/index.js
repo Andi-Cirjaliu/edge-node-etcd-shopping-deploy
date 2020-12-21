@@ -6,7 +6,7 @@ require('dotenv').config();
 console.log('Environment: ', process.env.NODE_ENV);
 
 const db = require('./dbController');
-db.initDB();
+
 
 const app = express();
 
@@ -54,3 +54,7 @@ const io = require('./socket').init(server);
 io.on('connection', socket => {
   console.log('----- Socket client connected! socket id ', socket.id);
 });
+
+( async () => {
+    await db.initDB();
+})();

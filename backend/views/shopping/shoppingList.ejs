@@ -14,7 +14,7 @@
             <tr>
                 <th scope="row"><%= ++index %></th>
                 <td><%= itemName %></td>
-                <td><%= items[itemName] %></td>
+                <td id="<%= 'item_' + itemName %>"><%= items[itemName] %></td>
                 <td align="right">
                     <form id="decForm" action="/shopping/dec" method="POST">
                         <input type="hidden" name="item" value="<%= itemName %>" />

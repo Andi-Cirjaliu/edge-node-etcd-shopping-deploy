@@ -14,6 +14,32 @@ if ( host ) {
 }
 console.log('Created an etcd client for host ', host);
 
+const getAllItems = async (key) => {
+  return getAllValues();
+}
+
+const getItem = async (key) => {
+  return getKey(key);
+}
+
+const addItem = async (key, value) => {
+  await setKey(key, value);
+
+  //watch changes to the new item
+  await watchKeyChanges(key);
+
+  //send event to clients
+  io.getIO().emit("change", { action: "add", key, value });
+}
+
+const updateItem = async (key, value) => {
+  return setKey(key, value);
+}
+
+const deleteItem = async (key) => {
+  return deleteKey(key);
+}
+
 const getAllKeys = async () => {
     console.log('get all keys...');
     const allFKeys = await client.getAll().keys();
@@ -48,6 +74,21 @@ const deleteKey = async (key) => {
     return res;
 }
 
+const initWatchers = async () => {
+  console.log('Init watchers....');
+
+  const keys = await getAllKeys();
+
+  try {
+    for (key of keys) {
+      watchKeyChanges(key);
+    }
+  } catch (err) { 
+    console.error("An error occured while initialize etcd watchers: ", err);
+  }
+
+}
+
 const initDB = async () => {
     console.log('Init DB....');
 
@@ -60,14 +101,18 @@ const initDB = async () => {
       for (item of defaultItems) {
         val = await getKey(item.itemName);
         if (!val) {
+          // addItem(item.itemName, item.itemQty);
           await setKey(item.itemName, item.itemQty);
         }
-        watchKeyChanges(item.itemName);
+        // watchKeyChanges(item.itemName);
       }
     } catch (err) { 
       console.error("An error occured while initialize etcd db: ", err);
     }
 
+    await initWatchers();
+
+    io.getIO().emit("change", { action: "init" });
 }
 
 
@@ -101,11 +146,16 @@ const watchKeyChanges = (key) => {
 
 module.exports = {
     initDB,
-    getAllKeys,
-    getAllValues,
-    getKey,
-    setKey,
-    deleteKey
+    getAllItems,
+    getItem,
+    addItem,
+    updateItem,
+    deleteItem,
+    // getAllKeys,
+    // getAllValues,
+    // getKey,
+    // setKey,
+    // deleteKey
 }
 
 // (async () => {
